@@ -1,0 +1,92 @@
+data:
+  raw_path: "data/raw/telco_churn.csv"
+  processed_path: "data/processed/telco_processed.csv"
+  target_column: "Churn"
+  test_size: 0.2
+  random_state: 42
+
+preprocessing:
+  tenure_bins: [0, 3, 12, 24, 48, 72]
+  tenure_labels: ["0-3m", "3-12m", "12-24m", "24-48m", "48-72m"]
+  high_charges_percentile: 0.5   # median split for vulnerable feature
+
+features:
+  numeric:
+    - tenure
+    - MonthlyCharges
+    - TotalCharges
+    - charge_per_tenure
+    - service_count
+    - vulnerable
+    - tenure_risk_score
+  categorical:
+    - gender
+    - Partner
+    - Dependents
+    - PhoneService
+    - MultipleLines
+    - InternetService
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+    - Contract
+    - PaperlessBilling
+    - PaymentMethod
+  service_columns:
+    - PhoneService
+    - OnlineSecurity
+    - OnlineBackup
+    - DeviceProtection
+    - TechSupport
+    - StreamingTV
+    - StreamingMovies
+
+models:
+  random_state: 42
+  logistic_regression:
+    C: 1.0
+    max_iter: 1000
+    class_weight: "balanced"
+    solver: "lbfgs"
+  random_forest:
+    n_estimators: 200
+    max_depth: 10
+    min_samples_leaf: 5
+    random_state: 42
+    n_jobs: -1
+  xgboost:
+    n_estimators: 300
+    max_depth: 5
+    learning_rate: 0.05
+    subsample: 0.8
+    colsample_bytree: 0.8
+    random_state: 42
+    eval_metric: "auc"
+
+# THRESHOLD DECISION:
+# False negative (missing a churner) cost = ~1200 INR/month lost revenue
+# False positive (flagging loyal customer) cost = ~150 INR (one retention call)
+# Cost ratio = 8:1 → we prioritize recall over precision
+# Threshold tuned on validation set to maximize (8*recall + precision)
+threshold:
+  default: 0.35
+  risk_bands:
+    low: 0.35       # below this = low risk
+    medium: 0.65    # between low and this = medium risk
+    high: 1.0       # above medium = high risk
+
+business:
+  monthly_revenue_per_customer: 1200   # INR average
+  retention_call_cost: 150             # INR per call
+  retention_success_rate: 0.30         # 30% of flagged churners retained
+  customer_base_example: 10000
+
+api:
+  host: "0.0.0.0"
+  port: 8000
+  model_path: "models/xgboost_model.joblib"
+  preprocessor_path: "models/preprocessor.joblib"
+  shap_explainer_path: "models/shap_explainer.joblib"

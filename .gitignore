@@ -1,0 +1,15 @@
+data/raw/
+data/processed/
+models/*.joblib
+models/*.png
+models/*.csv
+evaluation/
+__pycache__/
+*.pyc
+.env
+*.egg-info/
+dist/
+.pytest_cache/
+.DS_Store
+venv/
+mlruns/

@@ -1,0 +1,33 @@
+# Core ML
+scikit-learn==1.4.2
+xgboost==2.0.3
+imbalanced-learn==0.12.3
+shap==0.45.0
+
+# Data
+pandas==2.2.2
+numpy==1.26.4
+scipy==1.13.0         # KS test for drift detection
+
+# Experiment tracking
+mlflow==2.13.0
+
+# API
+fastapi==0.111.0
+uvicorn==0.30.1
+pydantic==2.7.1
+
+# Config
+pyyaml==6.0.1
+
+# Persistence
+joblib==1.4.2
+
+# Visualization (EDA + training plots)
+matplotlib==3.9.0
+
+# Testing / linting
+pytest==8.2.0
+httpx==0.27.0
+flake8==7.0.0
+mypy==1.10.0
